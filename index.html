@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Cache-Control" content="max-age=31536000">
+    
+    <!-- Updated security policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https: localhost:* http://localhost:3000;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://cdn.jsdelivr.net https://apis.google.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' https: http://localhost:3000 ws://localhost:* https://*.firebaseio.com https://identitytoolkit.googleapis.com;
+        img-src 'self' data: https:;
+        frame-src 'self' https://www.google.com https://database-3639e.firebaseapp.com;
+    ">
+    
+    <title>Authentication System</title>
+    
+    <!-- Fonts and Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- SweetAlert2 CSS and JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-form="loginForm">Login</button>
+            <button class="tab-btn" data-form="registerForm">Register</button>
+            <button class="tab-btn" data-form="forgotForm">Forgot</button>
+            <div class="tab-indicator"></div>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-container" id="loginForm" style="display: block;">
+            <h2 class="form-title">Welcome Back</h2>
+            <form id="loginFormElement" novalidate>
+                <div class="form-group">
+                    <label for="loginMobile">Mobile Number</label>
+                    <input type="tel" id="loginMobile" class="form-control" required pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div class="form-footer">
+                    <a href="javascript:void(0)" onclick="switchForm('forgotForm')" class="form-link">
+                        Forgot Password?
+                    </a>
+                    <br><br>
+                    <a href="javascript:void(0)" onclick="switchForm('registerForm')" class="form-link">
+                        Don't have an account? Register
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-container" id="registerForm" style="display: none;">
+            <h2 class="form-title">Create Account</h2>
+            <form id="registerFormElement" novalidate>
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="regMobile">Mobile Number</label>
+                    <input type="tel" id="regMobile" class="form-control" required pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" class="form-control" required>
+                </div>
+                
+                <div class="privacy-checkbox">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="privacyPolicy" required>
+                        <span class="checkmark"></span>
+                        <span class="label-text">I agree to the Privacy Policy and Terms</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn" id="registerButton">Register</button>
+                
+                <div class="form-footer">
+                    <a href="javascript:void(0)" onclick="switchForm('loginForm')" class="form-link">
+                        Already have an account? Login
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div class="form-container" id="forgotForm" style="display: none;">
+            <h2 class="form-title">Reset Password</h2>
+            <form id="forgotFormElement" novalidate>
+                <div class="form-group">
+                    <label for="forgotMobile">Mobile Number</label>
+                    <input type="tel" id="forgotMobile" class="form-control" required>
+                    <div id="forgotMobileError" class="error-message"></div>
+                </div>
+                <button type="submit" class="btn">Send Reset Link</button>
+                <div class="loading" id="forgotLoading"></div>
+                <div class="form-footer">
+                    <a href="javascript:void(0)" onclick="switchForm('loginForm')" class="form-link">
+                        Back to Login
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="notification" id="notification" style="display: none;"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module">
+        import { initializeAuth } from './script.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                initializeAuth();
+                console.log('Auth system initialized');
+            } catch (error) {
+                console.error('Error initializing auth:', error);
+            }
+        });
+    </script>
+
+    <script>
+    function switchForm(formId) {
+        // Hide all forms
+        document.querySelectorAll('.form-container').forEach(form => {
+            form.style.display = 'none';
+        });
+        
+        // Show selected form
+        document.getElementById(formId).style.display = 'block';
+        
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.getAttribute('data-form') === formId) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    // Add event listeners when document loads
+    document.addEventListener('DOMContentLoaded', () => {
+        // Tab button click handlers
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const formId = btn.getAttribute('data-form');
+                switchForm(formId);
+            });
+        });
+    });
+    </script>
+
+    <!-- After successful login -->
+    <script>
+        function handleSuccessfulLogin(userData) {
+            // Store user auth data with timestamp and auth token
+            const authData = {
+                isLoggedIn: true,
+                username: userData.username,
+                mobile: userData.mobile,
+                timestamp: Date.now(),
+                token: auth.currentUser ? auth.currentUser.uid : null,
+                expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+            };
+            
+            // Store in MongoDB
+            fetch('http://localhost:5000/api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: userData.username, mobile: userData.mobile })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                // Redirect to dashboard
+                window.location.href = 'dashboard/index.html';
+            })
+            .catch(error => {
+                console.error('Error saving user data:', error);
+            });
+        }
+    </script>
+
+</body>
+</html>
