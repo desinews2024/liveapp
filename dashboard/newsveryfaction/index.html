@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>News Fact Checking</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../dashboard/styles/footer-nav.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <header>
+            <button id="backButton" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="logo">
+                <h1>News Fact Check</h1>
+            </div>
+            <button id="darkModeToggle" class="notification-btn">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+
+
+        <div class="search-bar">
+            <form id="searchForm">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Enter news to verify..."
+                    required
+                >
+                <button type="submit">
+                    <i class="fas fa-search"></i> Verify
+                </button>
+            </form>
+        </div>
+
+        <div id="loading" class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="error" class="error-message hidden"></div>
+
+        <div id="results" class="news-feed"></div>
+    </div>
+    
+    <script>
+        // Back button functionality
+        document.getElementById('backButton').addEventListener('click', function() {
+            window.history.back();
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+<!-- Footer Navigation -->
+<nav class="footer-nav" role="navigation" aria-label="Main navigation">
+    <a href="#" class="nav-item" onclick="redirectTo('home')" aria-label="Home">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="#" class="nav-item" onclick="redirectTo('feed')" aria-label="Feed">
+        <i class="fas fa-list-alt"></i>
+        <span>Feed</span>
+    </a>
+    <a href="#" class="nav-item" onclick="redirectTo('upload')" aria-label="Upload">
+        <i class="fas fa-plus-circle"></i>
+        <span>Upload</span>
+    </a>
+    <a href="#" class="nav-item active" onclick="redirectTo('factcheck')" aria-label="Fact Check">
+        <i class="fas fa-check-circle"></i>
+        <span>Fact Check</span>
+    </a>
+    <a href="#" class="nav-item" onclick="redirectTo('account')" aria-label="Account">
+        <i class="fas fa-user"></i>
+        <span>Account</span>
+    </a>
+</nav>
+
+<!-- Add navigation script (सभी HTML फाइल्स में जोड़ें) -->
+<script>
+    function redirectTo(page) {
+        // Get the base URL (dashboard directory)
+        const baseUrl = window.location.pathname.includes('/dashboard') 
+            ? '.' 
+            : './dashboard';
+
+        // Check authentication
+        const userAuth = localStorage.getItem('userAuth');
+        if (!userAuth) {
+            window.location.href = `${baseUrl}/../login.html`;
+            return;
+        }
+
+        // Handle navigation based on page
+        switch(page) {
+            case 'home':
+                window.location.href ="../index.html";
+                break;
+            case 'feed':
+                window.location.href = "../videouolode/gallery.html";
+                break;
+            case 'upload':
+                window.location.href = "../videouolode/upload.html";
+                break;
+            case 'factcheck':
+                window.location.href = "index.html";
+                break;
+            case 'account':
+                window.location.href = "../myaccount/index.html";
+                break;
+        }
+    }
+
+    // Set active state for current page
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            // Remove all active classes first
+            item.classList.remove('active');
+            
+            // Add active class based on current path
+            if (currentPath.includes('index.html') && item.getAttribute('aria-label') === 'Home') {
+                item.classList.add('active');
+            } else if (currentPath.includes('gallery.html') && item.getAttribute('aria-label') === 'Feed') {
+                item.classList.add('active');
+            } else if (currentPath.includes('upload.html') && item.getAttribute('aria-label') === 'Upload') {
+                item.classList.add('active');
+            } else if (currentPath.includes('newsveryfaction') && item.getAttribute('aria-label') === 'Fact Check') {
+                item.classList.add('active');
+            } else if (currentPath.includes('myaccount') && item.getAttribute('aria-label') === 'Account') {
+                item.classList.add('active');
+            }
+        });
+    });
+
+    // Check authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthState();
+    });
+
+    function checkAuthState() {
+        const userAuth = localStorage.getItem('userAuth');
+        if (!userAuth) {
+            window.location.href = '../login.html';
+            return;
+        }
+
+        try {
+            const userData = JSON.parse(userAuth);
+            const now = Date.now();
+            
+            // Check if auth is expired
+            if (now > userData.expiresAt || !userData.isLoggedIn) {
+                localStorage.removeItem('userAuth');
+                sessionStorage.removeItem('userAuth');
+                window.location.href = '../login.html';
+                return;
+            }
+
+            // Update expiration time
+            userData.expiresAt = now + (24 * 60 * 60 * 1000); // 24 hours
+            localStorage.setItem('userAuth', JSON.stringify(userData));
+            
+        } catch (error) {
+            console.error('Auth check error:', error);
+            window.location.href = '../login.html';
+        }
+    }
+</script>
+
+<!-- Add CSS styles (सभी HTML फाइल्स में जोड़ें या external CSS file में डालें) -->
+<style>
+    .footer-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #666;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+
+    .nav-item i {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+
+    .nav-item.active {
+        color: #E60000;
+    }
+
+    /* Adjust main content to account for footer */
+    body {
+        padding-bottom: 70px;
+        margin: 0;
+    }
+</style>
+</html>

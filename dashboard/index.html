@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FFEFC8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Dashboard - Prabhav App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="styles/footer-nav.css">
+
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-chrome-192x192.png">
+</head>
+<body>
+    <script>
+        // Proper authentication check before setting isLoggedIn
+        if (!localStorage.getItem('isLoggedIn')) {
+            localStorage.setItem('isLoggedIn', 'true');
+        }
+    </script>
+    <div class="mobile-container">
+        <header>
+            <div class="logo">
+                <img src="assets/logo.png" alt="Prabhav App" class="logo-img">
+            </div>
+            <button class="notification-btn" id="notificationButton" title="Notifications" aria-label="Open notifications">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                <span class="notification-badge" id="notificationBadge">3</span>
+            </button>
+        </header>
+
+        <div class="content-sections">
+            <section id="home-section" class="content-section active">
+                <div class="search-bar">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input type="search" placeholder="Search news..." aria-label="Search news">
+                </div>
+                <div class="categories">
+                    <button class="category active" title="All categories" aria-label="Show all categories">All</button>
+                    <button class="category" title="Politics news" aria-label="Show politics news">Politics</button>
+                    <button class="category" title="Sports news" aria-label="Show sports news">Sports</button>
+                    <button class="category" title="Tech news" aria-label="Show tech news">Tech</button>
+                    <button class="category" title="Entertainment news" aria-label="Show entertainment news">Entertainment</button>
+                </div>
+                
+            </section>
+
+            
+
+           
+
+            <section id="account-section" class="content-section">
+                <!-- Account section will redirect to myaccount/index.html -->
+            </section>
+
+            <section id="dynamic-content" class="content-section">
+                <!-- Dynamic content will be loaded here -->
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Footer Navigation -->
+    <nav class="footer-nav" role="navigation" aria-label="Main navigation">
+        <a href="#" class="nav-item active" id="homeButton" aria-label="Home">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" aria-label="Feed" onclick="redirectToUpload()">
+            <i class="fas fa-list-alt"></i>
+            <span>Feed</span>
+        </a>
+        <a href="#" class="nav-item" id="uploadButton" aria-label="Upload" onclick="redirectToUpload1()">
+            <i class="fas fa-plus-circle"></i>
+            <span>Upload</span>
+        </a>
+        <a href="#" class="nav-item" aria-label="Fact Check" onclick="redirectToUpload2()">
+            <i class="fas fa-check-circle"></i>
+            <span>Fact Check</span>
+        </a>
+        <a href="#" class="nav-item" aria-label="Account" onclick="redirectToUpload3()">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </nav>
+      <script>
+        function redirectToUpload() {
+            window.location.href = "videouolode/gallery.html"; // नया पेज लोड होगा
+        }
+        function redirectToUpload1() {
+            window.location.href = "videouolode/upload.html"; // नया पेज लोड होगा
+        }
+        function redirectToUpload2() {
+            window.location.href = "newsveryfaction/index.html"; // नया पेज लोड होगा
+        }
+        function redirectToUpload3() {
+            window.location.href = "myaccount/index.html"; // नया पेज लोड होगा
+        }
+    </script
+
+    <!-- Video Upload Modal -->
+    <div id="uploadModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeUploadModal()">&times;</span>
+            <h2>Upload Video</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="videoTitle">Title:</label>
+                    <input type="text" id="videoTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoSummary">Summary:</label>
+                    <textarea id="videoSummary" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoCategory">Category:</label>
+                    <select id="videoCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Education">Education</option>
+                        <option value="Sports">Sports</option>
+                        <option value="News">News</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoLocation">Location:</label>
+                    <input type="text" id="videoLocation" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoFile">Select Video:</label>
+                    <input type="file" id="videoFile" accept="video/*" required>
+                    <div class="upload-preview">
+                        <video id="videoPreview" style="display: none;" controls></video>
+                    </div>
+                </div>
+                
+                <button type="submit" class="upload-submit-btn">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    Upload Video
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-spinner" style="display: none;" role="alert" aria-busy="true">
+        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+        <p>Loading content...</p>
+    </div>
+
+
+    <!-- Add Notification Panel -->
+    <div id="notificationPanel" class="notification-panel hidden">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button id="closeNotifications" title="Close notifications" aria-label="Close notifications panel">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="notification-list">
+            <div class="notification-item">
+                <i class="fas fa-info-circle" aria-hidden="true" role="img" aria-label="Information"></i>
+                <div class="notification-content">
+                    <p>Welcome to Prabhav App!</p>
+                    <span class="notification-time">Just now</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <i class="fas fa-upload" aria-hidden="true" role="img" aria-label="Upload"></i>
+                <div class="notification-content">
+                    <p>Your video has been uploaded successfully</p>
+                    <span class="notification-time">2 hours ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <i class="fas fa-heart" aria-hidden="true" role="img" aria-label="Like"></i>
+                <div class="notification-content">
+                    <p>Someone liked your video</p>
+                    <span class="notification-time">1 day ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Overlay -->
+    <div id="overlay" class="overlay hidden"></div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script>
+        // Initialize login state
+        if (!localStorage.getItem('isLoggedIn')) {
+            localStorage.setItem('isLoggedIn', 'true');
+        }
+
+        // Notification Panel Functionality
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const closeNotifications = document.getElementById('closeNotifications');
+        const overlay = document.getElementById('overlay');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Show notifications
+        notificationButton.addEventListener('click', () => {
+            notificationPanel.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            notificationBadge.textContent = '0';
+            notificationBadge.classList.add('hidden');
+        });
+
+        // Close notifications
+        closeNotifications.addEventListener('click', () => {
+            notificationPanel.classList.add('hidden');
+            overlay.classList.add('hidden');
+        });
+
+        // Close on overlay click
+        overlay.addEventListener('click', () => {
+            notificationPanel.classList.add('hidden');
+            overlay.classList.add('hidden');
+        });
+
+        // Show/hide loading overlay
+        window.showLoading = () => loadingOverlay.style.display = 'block';
+        window.hideLoading = () => loadingOverlay.style.display = 'none';
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        // Video preview functionality
+        document.getElementById('videoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const videoPreview = document.getElementById('videoPreview');
+            if (file) {
+                const videoUrl = URL.createObjectURL(file);
+                videoPreview.src = videoUrl;
+                videoPreview.style.display = 'block';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            showLoading();
+
+            const formData = new FormData();
+            formData.append('video', document.getElementById('videoFile').files[0]);
+            formData.append('title', document.getElementById('videoTitle').value);
+            formData.append('summary', document.getElementById('videoSummary').value);
+            formData.append('category', document.getElementById('videoCategory').value);
+            formData.append('location', document.getElementById('videoLocation').value);
+            formData.append('userId', localStorage.getItem('userId') || 'anonymous');
+
+            try {
+                const response = await fetch('/api/upload-video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const result = await response.json();
+                
+                // Add the new video to the feed
+                addVideoToFeed(result);
+                
+                // Close modal and show success message
+                closeUploadModal();
+                alert('Video uploaded successfully!');
+            } catch (error) {
+                alert('Error uploading video: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function addVideoToFeed(videoData) {
+            const feedItems = document.querySelector('.feed-items');
+            const videoPost = document.createElement('div');
+            videoPost.className = 'video-post';
+            videoPost.innerHTML = `
+                <div class="post-header">
+                    <div class="user-info">
+                        <img src="${videoData.userProfile || '../../assets/default-profile.png'}" alt="User Profile" class="profile-pic">
+                        <span class="username">${videoData.username}</span>
+                    </div>
+                    <div class="post-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${videoData.location}</span>
+                    </div>
+                </div>
+                <div class="video-container">
+                    <video controls>
+                        <source src="${videoData.videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <i class="far fa-heart"></i>
+                        <span>0</span>
+                    </button>
+                    <button class="action-btn comment-btn">
+                        <i class="far fa-comment"></i>
+                        <span>0</span>
+                    </button>
+                    <button class="action-btn share-btn">
+                        <i class="far fa-share-square"></i>
+                    </button>
+                </div>
+                <div class="post-summary">
+                    <p class="username">${videoData.username}</p>
+                    <p class="summary-text">${videoData.summary}</p>
+                </div>
+                <div class="comments-section">
+                    <div class="comments-list"></div>
+                    <div class="add-comment">
+                        <input type="text" placeholder="Add a comment...">
+                        <button>Post</button>
+                    </div>
+                </div>
+            `;
+            feedItems.insertBefore(videoPost, feedItems.firstChild);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elements
+            const homeSection = document.getElementById('home-section');
+            const dynamicContent = document.getElementById('dynamic-content');
+            const homeButton = document.getElementById('homeButton');
+            const uploadButton = document.getElementById('uploadButton');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            // Set initial state
+            homeSection.classList.add('active');
+
+            // Handle navigation clicks
+            navItems.forEach(item => {
+                item.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    
+                    // Update active states
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+
+                    // Hide all sections
+                    homeSection.classList.remove('active');
+                    dynamicContent.classList.remove('active');
+
+                    // Handle specific buttons
+                    if (item.id === 'homeButton') {
+                        homeSection.classList.add('active');
+                    } 
+                    else if (item.id === 'uploadButton') {
+                        try {
+                            const response = await fetch('videouolode/upload.html');
+                            const html = await response.text();
+                            dynamicContent.innerHTML = html;
+                            dynamicContent.classList.add('active');
+                        } catch (error) {
+                            console.error('Error loading upload page:', error);
+                            // On error, return to home
+                            homeSection.classList.add('active');
+                            item.classList.remove('active');
+                            homeButton.classList.add('active');
+                        }
+                    }
+                    // Other buttons just update active state but don't change content
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+
+        function checkAuthState() {
+            const userAuth = localStorage.getItem('userAuth');
+            if (!userAuth) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(userAuth);
+                const now = Date.now();
+                
+                // Check if auth is expired
+                if (now > userData.expiresAt || !userData.isLoggedIn) {
+                    localStorage.removeItem('userAuth');
+                    sessionStorage.removeItem('userAuth');
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                // Update expiration time
+                userData.expiresAt = now + (24 * 60 * 60 * 1000);
+                localStorage.setItem('userAuth', JSON.stringify(userData));
+                
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '../login.html';
+            }
+        }
+
+        // Update the upload button click handler
+        function redirectToUpload1() {
+            const userAuth = localStorage.getItem('userAuth');
+            if (!userAuth) {
+                window.location.href = '../login.html';
+                return;
+            }
+            window.location.href = "videouolode/upload.html";
+        }
+
+        async function loadContent(sectionId) {
+            const contentSection = document.getElementById(sectionId);
+            
+            try {
+                let content;
+                // डिबगिंग के लिए कंसोल लॉग जोड़ें
+                console.log('Loading section:', sectionId);
+                console.log('Current path:', window.location.pathname);
+
+                switch(sectionId) {
+                    case 'feed-section':
+                        content = await fetch('videouolode/gallery.html').then(res => res.text());
+                        break;
+                    case 'upload-section':
+                        content = await fetch('videouolode/upload.html').then(res => res.text());
+                        break;
+                    case 'fact-check-section':
+                        // पाथ को अपडेट करें और एरर हैंडलिंग जोड़ें
+                        try {
+                            const response = await fetch('newsverification/index.html');
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            content = await response.text();
+                        } catch (fetchError) {
+                            console.error('Fetch error:', fetchError);
+                            throw new Error(`Failed to load fact-check section: ${fetchError.message}`);
+                        }
+                        break;
+                    case 'account-section':
+                        content = await fetch('myaccount/index.html').then(res => res.text());
+                        break;
+                    default:
+                        content = `
+                            <div class="search-bar">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                                <input type="search" placeholder="Search news..." aria-label="Search news">
+                            </div>
+                            <div class="categories">
+                                <button class="category active">All</button>
+                                <button class="category">Politics</button>
+                                <button class="category">Sports</button>
+                                <button class="category">Tech</button>
+                                <button class="category">Entertainment</button>
+                            </div>
+                        `;
+                }
+                
+                // कंटेंट लोड करें
+                contentSection.innerHTML = content;
+
+                // स्क्रिप्ट्स को री-इनिशियलाइज़ करें
+                const scripts = contentSection.getElementsByTagName('script');
+                Array.from(scripts).forEach(script => {
+                    const newScript = document.createElement('script');
+                    Array.from(script.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+                    newScript.appendChild(document.createTextNode(script.innerHTML));
+                    script.parentNode.replaceChild(newScript, script);
+                });
+
+            } catch (error) {
+                console.error('Error loading content:', error);
+                contentSection.innerHTML = `
+                    <div class="error-message">
+                        <p>Error loading content. Please try again.</p>
+                        <p>Section: ${sectionId}</p>
+                        <p>Current Path: ${window.location.pathname}</p>
+                        <p>Error Details: ${error.message}</p>
+                        <button onclick="retryLoad('${sectionId}')" class="retry-btn">
+                            Retry Loading
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // रीट्राई फंक्शन जोड़ें
+        async function retryLoad(sectionId) {
+            try {
+                await loadContent(sectionId);
+            } catch (error) {
+                console.error('Retry failed:', error);
+            }
+        }
+
+        // स्टाइल्स जोड़ें
+        const styles = `
+            <style>
+                .error-message {
+                    padding: 20px;
+                    background-color: #fff3f3;
+                    border: 1px solid #ffcdd2;
+                    border-radius: 4px;
+                    margin: 10px 0;
+                }
+                .error-message p {
+                    color: #d32f2f;
+                    margin: 5px 0;
+                }
+                .retry-btn {
+                    background-color: #2196F3;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                }
+                .retry-btn:hover {
+                    background-color: #1976D2;
+                }
+                    @media (max-width: 360px){
+                     .nav-item i {
+        font-size: 1.2rem; 
+    }
+
+                    }
+            </style>
+        `;
+
+        document.head.insertAdjacentHTML('beforeend', styles);
+
+        // फुटर नेविगेशन के लिए showSection फंक्शन
+        async function showSection(sectionId) {
+            try {
+                // सभी सेक्शंस को छिपाएं
+                const sections = document.querySelectorAll('.content-section');
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // नेविगेशन आइटम्स की एक्टिव स्टेट अपडेट करें
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
+
+                // सिलेक्टेड सेक्शन को दिखाएं और कंटेंट लोड करें
+                const selectedSection = document.getElementById(sectionId);
+                selectedSection.classList.add('active');
+                
+                // कंटेंट लोड करें
+                await loadContent(sectionId);
+
+            } catch (error) {
+                console.error('Error in showSection:', error);
+            }
+        }
+
+        // पेज लोड होने पर इनिशियलाइज़ करें
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('home-section');
+        });
+
+        // Add sign out functionality
+        function handleSignOut() {
+            // Clear authentication data
+            localStorage.removeItem('userAuth');
+            localStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('userAuth');
+            
+            // Redirect to login page
+            window.location.href = '../login.html';
+        }
+
+        // Add event listener for sign out button
+        document.addEventListener('DOMContentLoaded', () => {
+            const signOutButton = document.querySelector('[data-setting="sign-out"]');
+            if (signOutButton) {
+                signOutButton.addEventListener('click', handleSignOut);
+            }
+        });
+    </script>
+
+    <!-- Profile Section -->
+    <div class="profile-info">
+        <h2 id="username">Loading...</h2>
+        <p class="bio">I am my different fireworks</p>
+    </div>
+    <div class="profile-image">
+        <img src="default-profile.png" alt="Profile Picture" id="profilePic">
+    </div>
+</body>
+</html>

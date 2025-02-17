@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Gallery</title>
+    <link rel="stylesheet" href="styles/gallery.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/footer-nav.css">
+</head>
+<body>
+    <div class="gallery-container">
+       
+        <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- Add Footer Navigation -->
+    <nav class="footer-nav" role="navigation" aria-label="Main navigation">
+        <a href="#" class="nav-item" onclick="redirectTo('home')" aria-label="Home">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" onclick="redirectTo('feed')" aria-label="Feed">
+            <i class="fas fa-list-alt"></i>
+            <span>Feed</span>
+        </a>
+        <a href="#" class="nav-item" onclick="redirectTo('upload')" aria-label="Upload">
+            <i class="fas fa-plus-circle"></i>
+            <span>Upload</span>
+        </a>
+        <a href="#" class="nav-item" onclick="redirectTo('factcheck')" aria-label="Fact Check">
+            <i class="fas fa-check-circle"></i>
+            <span>Fact Check</span>
+        </a>
+        <a href="#" class="nav-item" onclick="redirectTo('account')" aria-label="Account">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const videoGrid = document.getElementById('videoGrid');
+            
+            function loadVideos() {
+                try {
+                    const videos = JSON.parse(localStorage.getItem('uploadedVideos') || '[]');
+                    
+                    if (!videos || videos.length === 0) {
+                        videoGrid.innerHTML = '<p class="no-videos">No videos uploaded yet</p>';
+                        return;
+                    }
+
+                    videoGrid.innerHTML = '';
+                    videos.forEach(video => {
+                        const videoCard = createVideoCard(video);
+                        videoGrid.appendChild(videoCard);
+                    });
+
+                } catch (error) {
+                    console.error('Error loading videos:', error);
+                    videoGrid.innerHTML = `<p class="error">Error loading videos: ${error.message}</p>`;
+                }
+            }
+
+            function createVideoCard(video) {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                
+                const defaultThumbnail = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiPk5vIFRodW1ibmFpbDwvdGV4dD48L3N2Zz4=';
+                const defaultProfile = 'assets/default-profile.png';
+                
+                card.innerHTML = `
+                    <div class="video-header">
+                        <div class="user-profile">
+                            <div class="profile-pic">
+                                <img src="${video.userProfilePic || defaultProfile}" alt="Profile">
+                            </div>
+                            <div class="user-info">
+                                <span class="username">${video.username || 'User'}</span>
+                                <span class="location"><i class="fas fa-map-marker-alt"></i> ${video.location || 'Unknown location'}</span>
+                            </div>
+                        </div>
+                        <div class="video-options">
+                            <button class="options-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="video-wrapper">
+                        <video controlsList="nodownload nofullscreen" controls poster="${video.thumbnailUrl || defaultThumbnail}">
+                            <source src="${video.cloudinaryUrl}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3>${video.title || 'Untitled'}</h3>
+                        <div class="content-wrapper">
+                            <div class="summary-container">
+                                <p class="summary collapsed">${video.summary || 'No description'}</p>
+                                <button class="read-more-btn">Read More</button>
+                            </div>
+                            <div class="details-container">
+                                <div class="meta-info">
+                                    <span class="location"><i class="fas fa-map-marker-alt"></i> ${video.location || 'Unknown location'}</span>
+                                    <span class="category"><i class="fas fa-tag"></i> ${video.category || 'Uncategorized'}</span>
+                                </div>
+                                <div class="user-info">
+                                    <span class="timestamp"><i class="fas fa-clock"></i> ${formatDate(video.uploadDate)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add click event for Read More button
+                const readMoreBtn = card.querySelector('.read-more-btn');
+                const summary = card.querySelector('.summary');
+                
+                readMoreBtn.addEventListener('click', function() {
+                    summary.classList.toggle('collapsed');
+                    readMoreBtn.textContent = summary.classList.contains('collapsed') ? 'Read More' : 'Read Less';
+                });
+
+                return card;
+            }
+
+            function formatDate(timestamp) {
+                if (!timestamp) return 'Unknown date';
+                const date = new Date(timestamp);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            // Load videos when page loads
+            loadVideos();
+        });
+
+        function redirectTo(page) {
+            const baseUrl = window.location.pathname.includes('/dashboard') 
+                ? '.' 
+                : './dashboard';
+
+            // Check authentication
+            const userAuth = localStorage.getItem('userAuth');
+            if (!userAuth) {
+                window.location.href = `${baseUrl}/../login.html`;
+                return;
+            }
+
+            switch(page) {
+                case 'home':
+                    window.location.href = "../index.html";
+                    break;
+                case 'feed':
+                    window.location.href = "gallery.html";
+                    break;
+                case 'upload':
+                    window.location.href = "upload.html";
+                    break;
+                case 'factcheck':
+                    window.location.href = "../newsveryfaction/index.html";
+                    break;
+                case 'account':
+                    window.location.href = "../myaccount/index.html";
+                    break;
+            }
+        }
+    </script>
+
+    <style>
+        @media (max-width: 360px) {
+            .nav-item i {
+                font-size: 1.2rem; 
+            }
+        }
+    </style>
+
+    <script>
+        // Set active state for current page
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                
+                if (currentPath.includes('gallery.html') && item.getAttribute('aria-label') === 'Feed') {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        function checkAuthState() {
+            const userAuth = localStorage.getItem('userAuth');
+            if (!userAuth) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(userAuth);
+                const now = Date.now();
+                
+                if (now > userData.expiresAt || !userData.isLoggedIn) {
+                    localStorage.removeItem('userAuth');
+                    sessionStorage.removeItem('userAuth');
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                userData.expiresAt = now + (24 * 60 * 60 * 1000);
+                localStorage.setItem('userAuth', JSON.stringify(userData));
+                
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '../login.html';
+            }
+        }
+    </script>
+</body>
+</html> 
